@@ -7,28 +7,16 @@ import logoImg from './assets/logo.png';
 import AvailablePlaces from './components/AvailablePlaces.jsx';
 import { updateUserPlaces, fetchUserPlaces } from './http.js';
 import ErrorPage from './components/Error.jsx';
+import { useFetch } from './hooks/useFetch.js';
 
 function App() {
   const selectedPlace = useRef();
   const [userPlaces, setUserPlaces] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState();
+ 
 
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
+  const { isFetching, error, fetchedData } = useFetch(fetchUserPlaces, []);
 
-      try {
-      const places = await fetchUserPlaces();
-      setUserPlaces(places);
-      } catch (error) {
-        setError({message: error.message || 'Failed to fetch user places.'})
-      }
-      setIsFetching(false);
-    }
-    fetchPlaces();
-  }, [])
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
     selectedPlace.current = place;
@@ -93,7 +81,7 @@ function App() {
         <Places
           title="I'd like to visit ..."
           fallbackText="Select the places you would like to visit below."
-          places={userPlaces}
+          places={fetchedData}
           isLoading={isFetching}
           loadingText="Fetching your places..."
           onSelectPlace={handleStartRemovePlace}
